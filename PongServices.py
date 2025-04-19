@@ -37,7 +37,7 @@ async def pong_ping_task():
             logger.error(f"Error pinging main app: {e}")
         
         # Wait for 2 minutes before the next ping
-        await asyncio.sleep(120)
+        await asyncio.sleep(20)
 
 @app.on_event("startup")
 async def startup_event():
