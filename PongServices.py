@@ -45,4 +45,4 @@ async def startup_event():
     asyncio.create_task(pong_ping_task())
 
 if __name__ == "__main__":
-    uvicorn.run("pong_service:app", host="0.0.0.0", port=8000)
+    uvicorn.run("PongServices:app", host="0.0.0.0", port=8000)
