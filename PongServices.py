@@ -4,6 +4,7 @@ import httpx
 import asyncio
 import logging
 from datetime import datetime
+import os
 
 # Configure logging
 logging.basicConfig(
@@ -31,31 +32,33 @@ def health_check():
     return {"status": "healthy", "service": "pong", "timestamp": str(datetime.now())}
 
 async def keep_alive_task():
-    """Background task that pings the main app and itself every 5 minutes"""
+    """Background task that pings the main app every 5 minutes"""
     while True:
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
                 # Ping the main app
                 logger.info(f"Sending request to main app: {MAIN_APP_URL}")
-                response = await client.get(MAIN_APP_URL)
-                logger.info(f"Received response from main app: {response.status_code}")
                 
-                # Also ping itself to keep itself alive
-                self_url = "http://localhost:8000/health"
-                logger.info(f"Sending self-ping to: {self_url}")
-                self_response = await client.get(self_url)
-                logger.info(f"Received self-ping response: {self_response.status_code}")
+                try:
+                    response = await client.get(MAIN_APP_URL)
+                    logger.info(f"Received response from main app: {response.status_code}")
+                except Exception as e:
+                    logger.error(f"Failed to ping main app: {e}")
+                
+                # Skip self-pinging as it might be causing issues
+                logger.info("Skipping self-ping as it might be causing connection issues")
                 
         except Exception as e:
             logger.error(f"Error in keep-alive task: {e}")
         
         # Wait for 5 minutes before the next ping cycle
-        # Free tiers typically require activity within 15 minutes, so 5 minutes is safe
+        logger.info("Waiting 5 minutes before next ping cycle")
         await asyncio.sleep(300)
 
 @app.on_event("startup")
 async def startup_event():
     """Start the background keep-alive task when the app starts"""
+    logger.info("Starting pong service background task")
     asyncio.create_task(keep_alive_task())
 
 if __name__ == "__main__":
