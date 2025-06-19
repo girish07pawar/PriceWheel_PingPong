@@ -16,7 +16,7 @@ logger = logging.getLogger("pong-service")
 app = FastAPI()
 
 # URL of your main application - update this with your actual deployed main project URL
-MAIN_APP_URL = "https://backup-predectionmodel25.onrender.com/"
+MAIN_APP_URL = "https://backup-predectionmodel25-rjvo.onrender.com"
 
 @app.get("/")
 def read_root():
